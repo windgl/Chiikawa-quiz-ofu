@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>💚 Chiikawa Quiz </title>
+  <link rel="icon" type="image/x-icon" href="json.ico">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="text/javascript"> 
+  (function() {
+    emailjs.init({
+      publicKey: "j-6LlihUH6GNu_ZZC",
+    });
+
+    // 🛑 CÔNG TẮC CHẾ ĐỘ TEST (BẬT/TẮT GỬI MAIL THẬT)
+    const isTestMode = false; // Chỉnh thành false khi nào chuẩn bị gửi cho Bíp Bíp nha!
+
+    if (isTestMode) {
+        // Ghi đè hàm gửi mail gốc của thư viện
+        emailjs.send = function(service, template, params) {
+            console.log("%c[TEST MODE] Đã chặn gửi mail để giữ lượt free!", "color: #ff8fab; font-weight: bold; font-size: 14px;");
+            console.log("Nội dung đáng lẽ được gửi:", params);
+            
+            // Giả lập thời gian chờ 1.5s để UI vẫn chạy mượt mà (hiện loading, pháo giấy...)
+            return new Promise(resolve => setTimeout(() => resolve({status: 200, text: 'OK'}), 1500));
+        };
+    }
+  })();
+</script>
+  <link rel="stylesheet" href="style.css" />
+  </script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="patch.css" />
+  
+  
+  <style>
+    @font-face {
+      font-family: 'Carlytte';
+      src: url('font/1FTV-Carlytte.ttf') format('truetype');
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Modisframe';
+      src: url('font/SVN-Modisframe.otf') format('opentype');
+      font-display: swap;
+    }
+  </style> 
+  <link rel="preload" href="images/chiikawa.png"        as="image" type="image/png" />
+  <link rel="preload" href="images/usagi.png"           as="image" type="image/png" />
+  <link rel="preload" href="images/hachiware.png"       as="image" type="image/png" />
+  <link rel="preload" href="images/background-main.png" as="image" type="image/png" />
+  <link rel="preload" href="font/1FTV-Carlytte.ttf"     as="font"  type="font/truetype"  crossorigin="anonymous" />
+  <link rel="preload" href="font/SVN-Modisframe.otf"    as="font"  type="font/opentype"  crossorigin="anonymous" />
+  <link rel="preload" href="audio/Yiruma - River Flows In You.mp3" as="audio" />
+
+  <meta name="description"
+        content="Quiz tặng em 💌, Trả lời 15 câu hỏi nhỏ xíu và khám phá em là Chiikawa, Usagi hay Hachiware nhé~" />
+  <meta name="keywords"
+        content="chiikawa, quiz, personality test, usagi, hachiware, cute, kawaii, love quiz, vietnamese" />
+  <meta name="author"    content="Chiikawa Whisper · Made with 💚" />
+  <meta name="robots"    content="noindex, nofollow" />
+  <meta name="theme-color" content="#A7E9C3" />
+  <meta name="color-scheme" content="light" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Chiikawa Whisper" />
+  <meta name="application-name" content="Chiikawa Whisper" />
+  <meta name="msapplication-TileColor" content="#A7E9C3" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Chiikawa Whisper" />
+  <meta property="og:title"       content="💚 Chiikawa Quiz " />
+  <meta property="og:description" content="Quiz đặc biệt anh làm tặng em ~ Tìm hiểu em thuộc kiểu Chiikawa, Usagi hay Hachiware 🌿" />
+  <meta property="og:image"       content="images/3conchiikawa.jpg" />
+  <meta property="og:image:alt"   content="3 nhân vật Chiikawa, Usagi, Hachiware đáng yêu" />
+  <meta property="og:image:width"  content="800" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:locale"      content="vi_VN" />
+
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="💚 Chiikawa Whisper – Em Là Kiểu Người Nào?" />
+  <meta name="twitter:description" content="Quiz dễ thương ~ Em là Chiikawa type nào của anh?" />
+  <meta name="twitter:image"       content="images/3conchiikawa.jpg" />
+  <meta name="twitter:image:alt"   content="Chiikawa, Usagi, Hachiware" />
+
+  <style>
+    /* ── Zero-FOUC ── */
+   .screen {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(16px);
+    }
+    #screen-landing {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    body.transitioning {
+      overflow: hidden;
+    }
+    body.quiz-loading::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: rgba(212,245,227,.3);
+      backdrop-filter: blur(2px);
+      z-index: 9990;
+      pointer-events: none;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="cursor-core"    aria-hidden="true"></div>
+  <div id="cursor-ring"    aria-hidden="true"></div>
+  <div id="cursor-sparkle" aria-hidden="true"></div>
+
+  <div id="ambient-layer" aria-hidden="true">
+    <div class="amb-blob b1"></div>
+    <div class="amb-blob b2"></div>
+    <div class="amb-blob b3"></div>
+    <div class="amb-blob b4"></div>
+  </div>
+
+  <!-- ✨ GLITTER CANVAS – phủ lên ảnh kết quả -->
+  <canvas id="glitter-canvas" aria-hidden="true"></canvas>
+
+  <div id="starry-sky" aria-hidden="true"></div>
+  <div id="particle-layer" aria-hidden="true"></div>
+
+  <canvas id="fw-canvas" aria-hidden="true"></canvas>
+
+  <div id="confetti-layer" aria-hidden="true"></div>
+<!-- ✨ VOLUME MINI SLIDER — đặt NGAY TRƯỚC thẻ <div id="player-bar"> -->
+<!-- Copy đoạn này và paste vào index.html, ngay trước dòng <div id="player-bar" ...> -->
+
+<div id="volume-mini" role="group" aria-label="Điều chỉnh âm lượng nhạc nền">
+  <span class="vol-icon" id="vol-icon" aria-hidden="true">🔊</span>
+  <div class="vol-track" id="vol-track" title="Kéo để chỉnh âm lượng">
+    <div class="vol-fill"  id="vol-fill"></div>
+    <div class="vol-thumb" id="vol-thumb"></div>
+  </div>
+</div>
+  <div id="player-bar" role="region" aria-label="Trình phát nhạc">
+    <button id="music-btn" class="player-icon-btn" title="Bật / tắt nhạc" aria-pressed="false">
+      <span id="music-icon">🎵</span>
+    </button>
+    <div class="player-meta">
+      <span class="player-track" id="player-track">♪ Canon in D - TRFIY </span>
+      <span class="player-artist"> Eternity Roze </span>
+    </div>
+    <a href="https://open.spotify.com/playlist/1V1yw7bD3zOvh7lok9UPiF?si=8df6aad312154499"
+       target="_blank" rel="noopener noreferrer"
+       class="spotify-pill" aria-label="Mở playlist Chiikawa trên Spotify">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12
+        0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141
+        -.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6
+        11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3
+        -3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12
+        -1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241
+        1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721
+        -.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719
+        1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+      </svg>
+      Playlist
+    </a>
+    <audio id="bg-audio" loop preload="auto">
+      <source src="audio/Yiruma - River Flows In You.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <main id="app" role="main">
+
+    <section id="screen-landing" class="screen active" aria-label="Trang chủ Chiikawa Whisper">
+      <div class="landing-wrap">
+
+        <div class="corner-deco corner-tl" aria-hidden="true">
+          <span>🌿</span><span>✨</span><span>💚</span>
+        </div>
+        <div class="corner-deco corner-br" aria-hidden="true">
+          <span>💚</span><span>✨</span><span>🌿</span>
+        </div>
+
+        <div class="greeting-strip" aria-hidden="true">
+          <span>💚</span><span>🌸</span><span>⭐</span>
+          <span>🌿</span><span>💛</span><span>🌸</span>
+          <span>💚</span><span>⭐</span><span>🌿</span>
+          <span>💕</span><span>🍃</span><span>✨</span>
+        </div>
+
+        <div class="char-trio" id="char-trio">
+          <div class="char-unit hachiware-unit" id="easter-h" tabindex="0"
+               role="button" aria-label="Click để nghe fact về Hachiware">
+            <div class="char-fact-bubble" id="fact-h" aria-live="polite">
+              Hachiware có sọc xanh dễ thương và luôn là chỗ dựa ấm áp của nhóm! 🐱
+            </div>
+            <div class="char-img-wrap">
+              <img src="images/hachiware.png" alt="Hachiware" loading="eager" />
+            </div>
+            <div class="char-label">Hachiware </div>
+          </div>
+
+          <div class="char-unit chiikawa-unit" id="easter-c" tabindex="0"
+               role="button" aria-label="Click để nghe fact về Chiikawa">
+            <div class="char-fact-bubble" id="fact-c" aria-live="polite">
+              Chiikawa nhỏ xíu nhưng dũng cảm lắm, luôn cố gắng dù sợ hãi! 
+            </div>
+            <div class="char-img-wrap">
+              <img src="images/chiikawa.png" alt="Chiikawa" loading="eager" />
+            </div>
+            <div class="char-label">Chiikawa </div>
+          </div>
+
+          <div class="char-unit usagi-unit" id="easter-u" tabindex="0"
+               role="button" aria-label="Click để nghe fact về Usagi">
+            <div class="char-fact-bubble" id="fact-u" aria-live="polite">
+              Usagi hét YAHA! trước khi làm bất cứ điều gì, 100% năng lượng! 🐰
+            </div>
+            <div class="char-img-wrap">
+              <img src="images/usagi.png" alt="Usagi" loading="eager" />
+            </div>
+            <div class="char-label">Usagi </div>
+          </div>
+        </div>
+
+        <div class="landing-hero-text">
+          <div class="landing-badge-pill">💌 Quiz để xem bạn là kiểu Chiikawa nào 💌</div>
+          <h1 class="landing-h1">
+            Bạn Là Chiikawa<br /> Nào?
+            <span class="h1-leaf" aria-hidden="true">🌿</span>
+          </h1>
+          <p class="landing-tagline">
+            wyd? &nbsp;·&nbsp; hru td? &nbsp;·&nbsp; ate yet?
+          </p>
+          <p class="landing-note">
+            ✨ Nhấn vào 3 con phía trên để nghe fact trước khi bắt đầu nhé ✨
+          </p>
+        </div>
+
+        <button class="btn-start" id="btn-start" aria-label="Bắt đầu quiz Chiikawa Whisper">
+          <span class="btn-ico" aria-hidden="true">🌸</span>
+          Bắt đầu quiz
+          <span class="btn-ico" aria-hidden="true">🌸</span>
+        </button>
+
+        <div class="landing-extra-btns">
+          <button class="btn-ghost" id="btn-minigame">
+            <span aria-hidden="true">🎯</span> A Little Game
+          </button>
+          <button class="btn-ghost" id="btn-wheel">
+            <span aria-hidden="true">🎡</span> Chiikawa Wheel
+          </button>
+        </div>
+
+
+        <div class="steps-preview" aria-label="Các bước của quiz">
+          <div class="step-item">
+            <span class="step-num"><i>THE WORLD</i></span>
+            <span class="step-desc"><i><b>IS BAD</b></i></span>
+          </div>
+          <div class="step-sep" aria-hidden="true">·</div>
+          <div class="step-item">
+            <span class="step-num"><i>BUT</i></span>
+            <span class="step-desc"><i><b>YOU ARE</b></i></span>
+          </div>
+          <div class="step-sep" aria-hidden="true">·</div>
+          <div class="step-item">
+            <span class="step-num"><i>ALWAYS</i></span>
+            <span class="step-desc"><i><b>SO GOOD</b></i></span>
+          </div>
+        </div>
+
+        <p class="landing-footer-note">Made with 💚 just for you</p>
+      </div>
+    </section>
+
+    <section id="screen-loading" class="screen" aria-label="Đang tính toán kết quả">
+      <div class="loading-wrap">
+        <img src="images/loading-cute.gif" alt="Loading animation dễ thương" class="loading-gif" />
+        <h2 class="loading-h2" id="loading-h2">Đang phân tích tính cách của em...</h2>
+        <div class="loading-progress-track">
+          <div class="loading-fill" id="loading-fill"></div>
+          <div class="loading-mascot" id="loading-mascot" aria-hidden="true">🌿</div>
+        </div>
+        <div class="loading-run-chars" aria-hidden="true">
+          <span class="rc rc1">🐱</span>
+          <span class="rc rc2">⭐</span>
+          <span class="rc rc3">🐰</span>
+        </div>
+        <p class="loading-flavor" id="loading-flavor">Chiikawa đang ghi chép dữ liệu...</p>
+      </div>
+    </section>
+
+    <section id="screen-result" class="screen" aria-label="Kết quả personality">
+      <div class="result-wrap">
+        <div class="result-sparkle-row" aria-hidden="true">✨ Kết quả của em ✨</div>
+
+        <div class="result-char-stage" id="result-char-stage">
+          <div class="result-glow-ring" id="result-glow-ring" aria-hidden="true"></div>
+          <!-- ✨ GLITTER OVERLAY – lớp lấp lánh phủ lên ảnh kết quả -->
+          <div class="glitter-wrap" id="glitter-wrap">
+            <img class="result-char-img" id="result-char-img" src="" alt="Nhân vật kết quả" />
+            <div class="glitter-overlay" id="glitter-overlay" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="result-pill" id="result-pill">Đang tính...</div>
+
+        <p class="result-flavor-text" id="result-flavor-text">
+          Em mang tính cách của...
+        </p>
+
+        <div class="result-traits-wrap" id="result-traits-wrap">
+          </div>
+
+        <div class="result-action-row">
+          <button class="btn-go-letter" id="btn-go-letter">
+            💌 Tiếp theo
+          </button>
+          
+          <button class="btn-ghost wide" id="btn-download-result">
+            📥 Tải ảnh kết quả về máy
+          </button>
+
+          <button class="btn-ghost" id="btn-replay">
+            🔄 Chơi lại từ đầu
+          </button> 
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-letter" class="screen" aria-label="Bức thư ">
+      <div class="letter-outer-wrap">
+
+        <div class="env-phase" id="env-phase">
+          <div class="envelope-3d" id="envelope-3d"
+               role="button" tabindex="0" aria-label="Nhấn để mở phong bì">
+            <div class="env-flap"  id="env-flap"  aria-hidden="true"></div>
+            <div class="env-body-panel" aria-hidden="true">
+              <div class="env-hearts">💚 &nbsp; 💚 &nbsp; 💚</div>
+              <div class="env-from-label">bức thư của mình</div>
+              <!-- ✨ WAX SEAL – con dấu lắc nhẹ -->
+              <div class="env-seal wax-seal" id="wax-seal" aria-hidden="true">🌿</div>
+            </div>
+          </div>
+          <p class="env-hint">Nhấn vào phong bì để mở thư nha🌸</p>
+          <button class="btn-open-env" id="btn-open-env">Mở thư 💌</button>
+        </div>
+
+        <div class="letter-paper" id="letter-paper" aria-hidden="true">
+          <div class="paper-scroll">
+            <!-- ✨ PAPER TEXTURE OVERLAY -->
+            <div class="paper-texture-overlay" aria-hidden="true"></div>
+
+            <div class="paper-deco-top" aria-hidden="true">🌿 💚 🌸 💚 🌿</div>
+
+            <p class="paper-salutation">Gửi Bíp Bíp</p>
+
+            <div class="paper-body">
+              <p>
+                Hôm nay là ngày <b>8/3</b>, mình muốn gửi đến bạn một lời chúc thật lòng nhất. Chúc bạn một ngày thật bình yên, tràn đầy tiếng cười và những điều tốt lành. Bạn chính là người khiến những ngày thường của mình trở nên thú vị và dễ chịu hơn rất nhiều.
+              </p>
+              <p>
+                Dù có những lúc bạn hay lo lắng như <b><strong><i>Chiikawa</i></strong></b>, hay tràn đầy năng lượng và có chút "vô tri" đáng yêu như <b><strong><i>Usagi</i></strong></b>, hoặc là người bạn ấm áp luôn biết cách quan tâm như <b><strong><i>Hachiware</i></strong></b>
+              </p>
+              <p>
+               <b>... ... ... Thì với mình, bạn vẫn luôn là ĐIỀU ĐẶC BIỆT NHẤT</b>.
+              </p>
+              <p>
+                Thú thật, code xong cái web này mình mới thấy bản thân tâm huyết thực sự, chắc tại <b>Bíp Bíp</b> <i>đặc biệt</i> quá đó! Mình làm vì quý bạn thật lòng, thấy bạn vui là mình thấy xứng đáng rồi. Mình siêu thích cách hai đứa nói chuyện mỗi ngày, những dòng <strong><i>chúc ngủ ngon</i></strong> hay tin nhắn <strong><i>iu nhau</i></strong> cứ làm mình cười một mình mãi thôi.
+              </p>
+              <p>
+                Nhưng vì mình <b>rất trân trọng</b> những gì tụi mình đang có, mà hai đứa cũng chưa gặp nhau ngoài đời nữa... nên mình muốn mọi thứ thực tế một chút, chưa vội chốt <i>danh phận</i> gì qua màn hình cả. Mình cứ vui vẻ làm <b>bạn siuuuuu thân</b> như bây giờ nhé, cứ giữ cái sự đáng yêu này đi.
+              </p>
+              <p>
+                Mình mong bạn luôn khỏe mạnh, học hành thuận lợi và hạnh phúc với những gì đang làm. Đợi hôm nào gặp mặt trực tiếp, để xem lúc đứng trước mặt mình rồi <b>Bíp Bíp</b> có còn <i>gan dạ</i> nói iu mình như lúc nhắn tin không nhé =)). Mà... chắc phải đợi mình phục hồi lại nhan sắc, dọn dẹp đống mụn này cái đã. Mình muốn gặp bạn ở phiên bản <i>tốt hơn của bản thân</i> để không làm bạn thất vọng.
+              </p>
+              <p>
+                Giữ nụ cười và sự dễ thương của bạn nhé. <i><b>Hẹn sớm gặp nhau ngoài đời nha!</b></i>
+              </p>
+            </div>
+
+            <div class="paper-sign-block">
+              <span class="sign-love">Yêu bạn nhiều lắm,</span>
+              <span class="sign-name" id="sign-name">Từ người mà bạn gọi là bạn siuuuuu thân</span>
+            </div>
+
+            <div class="paper-trio-img">
+              <img src="images/3conchiikawa.jpg" alt="3 con Chiikawa ôm nhau dễ thương" />
+            </div>
+
+            <div class="paper-deco-bot" aria-hidden="true">🌸 ♡ 🌿 ♡ 🌸</div>
+            <div class="reply-section" id="reply-section" style="display: none; opacity: 0;">
+              <p class="reply-question" id="reply-question">Bạn có muốn gửi lại lời nhắn gì cho mình không? </p>
+              
+              <div class="reply-buttons" id="reply-buttons">
+                <button class="btn-reply-yes" id="btn-reply-yes">Có 💚</button>
+                <button class="btn-reply-no" id="btn-reply-no">Không</button>
+              </div>
+
+              <div class="reply-box-wrap" id="reply-box-wrap" style="display: none;">
+                <textarea id="reply-textarea" class="reply-textarea" placeholder="Viết lời nhắn của ở đây nha..." maxlength="10000"></textarea>
+                <button class="btn-send-reply" id="btn-send-reply">Gửi cho bạn siuu thân 💌</button>
+              </div>
+
+              <div id="reply-success-msg" class="reply-success-msg" style="display: none;">
+                Đã gửi thành công! 🥰
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="letter-action-row" id="letter-action-row" aria-hidden="true">
+          <button class="btn-ghost wide" id="btn-replay-letter">
+            🔄 Chơi lại từ đầu
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="screen-minigame" class="screen" aria-label="A Little Game">
+      <div class="mg-wrap">
+        <div class="mg-header">
+          <button class="btn-back" id="btn-back-mg">
+            <span class="back-arrow" aria-hidden="true">←</span> Quay lại
+          </button>
+          <div class="mg-stats">
+            <span class="mg-time">⏳ <span id="mg-timer">30</span>s</span>
+            <span class="mg-score" style="color: var(--pink-deep);">Lv.<span id="mg-level">1</span></span>
+            <span class="mg-score">🌟 <span id="mg-score">0</span></span>
+          </div>
+        </div>
+        
+        <div class="mg-gameboard" id="mg-gameboard"> 
+          <div class="mg-start-overlay" id="mg-start-overlay">
+  <div id="mg-intro-view" class="mg-view">
+    <h3>Bắt nhanh tay nhé! 🎯</h3>
+    <p>Nhấn vào các bé xuất hiện để ghi điểm nha~</p>
+    <button class="btn-start" id="btn-start-mg">Chơi luôn!</button>
+  </div>
+
+  <div id="mg-result-view" class="mg-view" style="display: none;">
+    <div class="mg-result-card">
+      <div class="mg-result-badge" id="mg-rank-badge">Hạng</div>
+      <h2 class="mg-result-title">KẾT QUẢ</h2>
+      
+      <div class="mg-result-stats">
+        <div class="stat-item">
+          <span class="stat-label">Điểm số</span>
+          <span class="stat-value" id="mg-final-score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Số lần nhấn</span>
+          <span class="stat-value" id="mg-final-clicks">0</span>
+        </div>
+      </div>
+
+      <p class="mg-rank-text" id="mg-rank-text">Lời phê của Chiikawa...</p>
+      
+      <div class="mg-result-btns">
+        <button class="btn-start" id="btn-restart-mg">Chơi lại 🔄</button>
+        <button class="btn-ghost" id="btn-quit-mg">Thoát</button>
+      </div>
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-wheel" class="screen" aria-label="Chiikawa Wheel">
+      <div class="wheel-wrap">
+        <button class="btn-back" id="btn-back-wheel" style="align-self: flex-start;">
+          <span class="back-arrow" aria-hidden="true">←</span> Quay lại
+        </button>
+        
+        <h2 class="wheel-title" id="wheel-title">Chiikawa Wheel</h2>
+        
+        <div class="wheel-container">
+          <div class="wheel-pointer" aria-hidden="true">▼</div>
+          <div class="wheel-spinner" id="wheel-spinner">
+            <div class="wheel-slice" style="--i:0;"><img src="images/chiikawa1.png" alt="Chiikawa"></div>
+            <div class="wheel-slice" style="--i:1;"><img src="images/usagi1.png" alt="Usagi"></div>
+            <div class="wheel-slice" style="--i:2;"><img src="images/hachiware1.png" alt="Hachiware"></div>
+            <div class="wheel-slice" style="--i:3;"><img src="images/momonga1.png" alt="Momonga"></div>
+            <div class="wheel-slice" style="--i:4;"><img src="images/kurimanju1.png" alt="Kurimanju"></div>
+            <div class="wheel-slice" style="--i:5;"><img src="images/rakko1.png" alt="Rakko"></div>
+          </div>
+        </div>
+
+        <button class="btn-start" id="btn-spin-wheel" style="text-align: center;">SPIN!!!!</button>
+
+        <div class="wheel-result-modal" id="wheel-result-modal">
+          <div class="wheel-result-card">
+            <img id="wheel-result-img" src="" alt="Kết quả">  
+            <h3 id="wheel-result-name">Name</h3>
+            <p id="wheel-result-text">Lời chúc</p>
+            <div style="display: flex; gap: 10px; margin-top: 10px; width: 100%; justify-content: center;">
+                <button class="btn-ghost" id="btn-close-wheel">Đóng</button>
+                <button class="btn-ghost" id="btn-download-wheel" style="background: var(--pink-deep); color: white; border-color: var(--pink-deep);">📥 Tải ảnh</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <div id="export-card" aria-hidden="true">
+    <div class="ec-header">✨ Chiikawa Quiz ✨</div>
+    <div class="ec-badge" id="ec-badge">Đang tính...</div>
+    <img class="ec-img" id="ec-img" src="" alt="Result" crossorigin="anonymous" />
+    <div class="ec-flavor" id="ec-flavor"></div>
+    <div class="ec-traits" id="ec-traits"></div>
+    <div class="ec-footer">Made for Bíp Bíp with 💚</div>
+  </div>
+  <div id="wheel-export-card" aria-hidden="true">
+    <div class="wec-header">✨ Tín Hiệu Hôm Nay ✨</div>
+    <img class="wec-img" id="wec-img" src="" alt="Result" crossorigin="anonymous" />
+    <div class="wec-name" id="wec-name">Name</div>
+    <div class="wec-text" id="wec-text">Text</div>
+    <div class="wec-footer">Chiikawa Wheel 🎡</div>
+  </div>
+  <div id="spotify-float" role="complementary" aria-label="Playlist Spotify dành cho bạn">
+
+    <div class="sf-pill" id="sf-pill">
+      <div class="sf-notes" aria-hidden="true">
+        <span class="sfn n1">♪</span>
+        <span class="sfn n2">♫</span>
+        <span class="sfn n3">♩</span>
+      </div>
+      <div class="sf-pill-text">
+        <span class="sf-pill-title">Playlist dành cho bạn</span>
+        <span class="sf-pill-sub">Nhấn để xem 🎵</span>
+      </div>
+      <button class="sf-toggle" id="sf-toggle"
+              aria-expanded="false" aria-controls="sf-card"
+              aria-label="Mở Spotify playlist widget">
+        <span class="sf-chevron" id="sf-chevron" aria-hidden="true">▲</span>
+      </button>
+    </div>
+
+    <div class="sf-card" id="sf-card" aria-hidden="true">
+      <div class="sf-card-header">
+        <svg class="sf-logo" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+        </svg>
+        <div class="sf-card-title-wrap">
+          <span class="sf-card-title">Playlist dành cho bạn</span>
+          <span class="sf-card-sub">💚 Playlist dành riêng này cho bạn đấy</span>
+        </div>
+        <button class="sf-close" id="sf-close" aria-label="Đóng Spotify widget">✕</button>
+      </div>
+
+      <div class="sf-wave" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span>
+      </div>
+
+      <div class="sf-tracks">
+        <div class="sf-track"><span class="sf-tnum">01</span><span class="sf-tname">Canon in D - River Flows in You (Orchestral Arr.) · Eternity Roze</span></div>
+        <div class="sf-track"><span class="sf-tnum">02</span><span class="sf-tname">Canon in D · Johann Pachelbel</span></div>
+        <div class="sf-track"><span class="sf-tnum">03</span><span class="sf-tname">Rhapsody on a Theme of Paganini - Variation 18 · Rachmaninoff</span></div>
+        <div class="sf-track sf-track-more"><span class="sf-tnum">…</span><span class="sf-tname">Và nhiều bài khác 🌿</span></div>
+      </div>
+
+      <a href="https://open.spotify.com/playlist/5olc9m8BqOAqY8EHYHB03p?si=87a78545d6cc46cc"
+         target="_blank" rel="noopener noreferrer"
+         class="sf-open-btn"
+         aria-label="Mở playlist trên Spotify">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+        </svg>
+        Nghe trên Spotify
+      </a>
+
+      <p class="sf-note-txt">🌿 Nhạc này mình chọn riêng cho bạn ~</p>
+    </div>
+  </div>
+<<button id="starry-toggle" class="starry-toggle-btn" aria-label="Bật/Tắt chế độ ban đêm" title="Bật không gian ban đêm">
+    <span class="star-icon">🌙</span>
+  </button>
+  <script src="script.js"></script>
+  <script src="patch.js"></script>
+</body>
+
+  <div id="aria-announce" aria-live="polite" aria-atomic="true"
+       class="visually-hidden" role="status"></div>
+  <div id="aria-alert" aria-live="assertive" aria-atomic="true"
+       class="visually-hidden" role="alert"></div>
+
+  <a href="#app" class="skip-link" tabindex="0">Bỏ qua và bắt đầu quiz ↓</a>
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"
+       style="position:absolute;overflow:hidden;" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="svg-glow-green" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="6" result="blur" />
+        <feFlood flood-color="#69C16E" flood-opacity="0.4" result="color" />
+        <feComposite in="color" in2="blur" operator="in" result="glow" />
+        <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <filter id="svg-glow-pink" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="8" result="blur" />
+        <feFlood flood-color="#FF8FAB" flood-opacity="0.45" result="color" />
+        <feComposite in="color" in2="blur" operator="in" result="glow" />
+        <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <filter id="svg-dreamy" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <pattern id="stripe-pattern" patternUnits="userSpaceOnUse" width="20" height="20"
+               patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="20"
+              stroke="rgba(167,233,195,0.25)" stroke-width="3" />
+      </pattern>
+      <pattern id="dot-pattern" patternUnits="userSpaceOnUse" width="16" height="16">
+        <circle cx="8" cy="8" r="1.5" fill="rgba(105,193,110,0.2)" />
+      </pattern>
+      <symbol id="ico-heart" viewBox="0 0 24 24">
+        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191
+                 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447
+                 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136
+                 8.625-11 14.402z" fill="currentColor" />
+      </symbol>
+      <symbol id="ico-leaf" viewBox="0 0 24 24">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.4L5.71 22l1-2.3A4.49 4.49 0 0 0 8
+                 20C19 20 22 3 22 3c-1 2-8 2-8 2 2-2 6-2 6-2H6c0 1 0 4-2 6C4 8
+                 5 6 5 6 2 6 0 8.8 0 12s6 8 9 8c0-2-3.5-3-4-6z" fill="currentColor" />
+      </symbol>
+      <symbol id="ico-star" viewBox="0 0 24 24">
+        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77
+                         5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="currentColor" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <style>
+    /* ── Skip link ── */
+   .skip-link {
+      position: fixed; top: -100px; left: 16px; z-index: 99999;
+      background: #fff; color: #2d4a2d;
+      border: 2px solid #69C16E; border-radius: 8px;
+      padding: 8px 16px; font-size:.9rem;
+      font-family: 'Modisframe', Georgia, serif;
+      text-decoration: none; transition: top.2s ease;
+    }
+   .skip-link:focus { top: 16px; }
+
+    /* ── Visually hidden ── */
+   .visually-hidden {
+      position: absolute!important; width: 1px!important;
+      height: 1px!important; padding: 0!important;
+      margin: -1px!important; overflow: hidden!important;
+      clip: rect(0,0,0,0)!important; white-space: nowrap!important;
+      border: 0!important;
+    }
+
+    /* ── Focus visible ── */
+    *:focus-visible {
+      outline: 3px solid #69C16E;
+      outline-offset: 3px; border-radius: 6px;
+    }
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid #69C16E; outline-offset: 4px;
+    }
+
+    /* ── High contrast mode ── */
+    @media (forced-colors: active) {
+     .btn-start,.btn-go-letter,.btn-open-env {
+        border: 2px solid ButtonText; forced-color-adjust: none;
+      }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms!important;
+        animation-iteration-count: 1!important;
+        transition-duration: 0.01ms!important;
+      }
+     .screen { transition: opacity.15s!important; }
+      #cursor-core, #cursor-ring, #cursor-sparkle { display: none; }
+    }
+
+    /* ── Touch device (no custom cursor) ── */
+    @media (hover: none) and (pointer: coarse) {
+      body { cursor: auto; }
+      button, a { cursor: pointer; }
+      #cursor-core, #cursor-ring, #cursor-sparkle { display: none!important; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      #cursor-core, #cursor-ring, #cursor-sparkle,
+      #ambient-layer, #particle-layer, #fw-canvas,
+      #confetti-layer, #player-bar,.btn-back,
+     .btn-start,.skip-link { display: none!important; }
+      body { background: white; color: black; cursor: auto; }
+     .letter-paper { display: block!important; box-shadow: none; }
+     .screen { position: relative!important; opacity: 1!important; }
+      #screen-landing, #screen-result, #screen-letter { display: block!important; }
+    }
+
+    /* ── Dark mode (intentionally kept light) ── */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(145deg, #cef5de 0%, #d9f5e8 20%,
+                    #f0faf5 45%, #e8f4ff 70%, #fdf0ff 100%);
+      }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Chiikawa Whisper",
+    "description": "A cute personality quiz gift – discover which Chiikawa character type you are",
+    "applicationCategory": "EntertainmentApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "VND" },
+    "keywords": "chiikawa, quiz, personality test, kawaii, cute, usagi, hachiware",
+    "inLanguage": "vi",
+    "isFamilyFriendly": true
+  }
+  </script>
+
+</html>
