@@ -993,7 +993,7 @@ function computeResult() {
   renderResult(winner, tiedTypes.length > 1);
 
   sendResultToDiscord(state.winner, state.scores, state.answers);
-  sendResultToEmail(state.winner, state.scores, state.answers);
+ // sendResultToEmail(state.winner, state.scores, state.answers);
 }
 
 /* ──────────────────────────────────────────────────
