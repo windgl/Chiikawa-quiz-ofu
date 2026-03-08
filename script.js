@@ -1555,32 +1555,36 @@ function bindButtons() {
    XỬ LÝ TẢI ẢNH KẾT QUẢ
 ────────────────────────────────────────────────── */
 function downloadResultImage() {
-  sfx('audio/clicksound.mp3', 0.45);
-  hapticFeedback([15]);
+  const btnDownload = document.getElementById('btn-download-result');
+  if (btnDownload) btnDownload.blur();
+  if (typeof sfx === 'function') sfx('audio/clicksound.mp3', 0.45);
+  if (typeof hapticFeedback === 'function') hapticFeedback([15]);
   
   const exportCard = document.getElementById('export-card');
-  const btnDownload = document.getElementById('btn-download-result');
 
   const originalText = btnDownload.innerHTML;
   btnDownload.innerHTML = '⏳ Đang gói quà...';
   btnDownload.style.pointerEvents = 'none';
 
+  // FIX: Đổi cách giấu thẻ, dùng absolute và set toạ độ 0
   exportCard.style.display = 'flex';
-  exportCard.style.position = 'fixed';
-  exportCard.style.top = '0';
-  exportCard.style.left = '0';
-  exportCard.style.zIndex = '-9999'; 
+  exportCard.style.position = 'absolute';
+  exportCard.style.top = '0px';
+  exportCard.style.left = '0px';
+  exportCard.style.zIndex = '-100'; // Đẩy ra phía sau body
 
   html2canvas(exportCard, {
-    scale: 2.5,
+    scale: 2.5, 
     useCORS: true, 
-    backgroundColor: null,
+    backgroundColor: '#FDF0FF', // BẮT BUỘC: Màu nền cứng thay vì null
+    width: exportCard.offsetWidth,
+    height: exportCard.offsetHeight,
     logging: false
   }).then(canvas => {
     exportCard.style.display = 'none';
     
     btnDownload.innerHTML = originalText;
-    btnDownload.style.pointerEvents = 'auto';
+    btnDownload.style.pointerEvents = '';
 
     const link = document.createElement('a');
     link.download = `The-Tinh-Cach-Cua-Bip-Bip.png`;
@@ -1594,7 +1598,6 @@ function downloadResultImage() {
     alert('Có chút trục trặc khi in thẻ, tải lại trang thử xem nhé!');
   });
 }
-
 /* ──────────────────────────────────────────────────
    22. INIT (Entry point)
 ────────────────────────────────────────────────── */
@@ -1900,7 +1903,11 @@ const mgLevels = [
     img.className = 'mg-target';
     img.src = charImages[Math.floor(Math.random() * charImages.length)];
     
-    // Áp dụng độ nhỏ theo cấp độ hiện tại
+    // THÊM 3 DÒNG NÀY: Chặn trình duyệt cho phép kéo/tải ảnh khi lỡ click trượt
+    img.draggable = false;
+    img.style.userSelect = 'none';
+    img.style.webkitUserDrag = 'none';
+
     img.style.transform = `scale(${currentLvl.scale})`;
     img.style.transition = 'transform 0.1s';
 
@@ -1909,13 +1916,18 @@ const mgLevels = [
     img.style.left = Math.max(0, Math.floor(Math.random() * maxX)) + 'px';
     img.style.top = Math.max(0, Math.floor(Math.random() * maxY)) + 'px';
     
-    img.onmousedown = (e) => {
+    // THAY ĐỔI CÁCH BẮT CLICK: Dùng hàm riêng và thêm e.preventDefault()
+    const hitTarget = (e) => {
+      // Chặn mọi hành vi mặc định (tránh gây lỗi focus hay bôi đen)
+      if (e.cancelable) e.preventDefault(); 
+      if (img.style.pointerEvents === 'none') return; // Tránh click đúp
+
       mgScore += 10; 
       scoreEl.textContent = mgScore;
       if (typeof sfx === 'function') sfx('audio/pop-select.mp3', 0.6);
       
       img.style.pointerEvents = 'none';
-      img.style.transform = `scale(${currentLvl.scale * 0.4})`; // Bé lại lập tức khi trúng đòn
+      img.style.transform = `scale(${currentLvl.scale * 0.4})`; // Bé lại lập tức
       setTimeout(() => img.remove(), 100);
 
       // KIỂM TRA LÊN CẤP ĐỘ
@@ -1927,20 +1939,29 @@ const mgLevels = [
           const lvlUpText = document.createElement('div');
           lvlUpText.className = 'mg-float-text';
           lvlUpText.textContent = "Level Up! 🔥";
-          lvlUpText.style.left = e.clientX - board.getBoundingClientRect().left + 'px';
-          lvlUpText.style.top = (e.clientY - board.getBoundingClientRect().top - 20) + 'px';
+          
+          // Fix vị trí chữ khi chơi trên cả máy tính lẫn điện thoại
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          
+          lvlUpText.style.left = clientX - board.getBoundingClientRect().left + 'px';
+          lvlUpText.style.top = (clientY - board.getBoundingClientRect().top - 20) + 'px';
           board.appendChild(lvlUpText);
           setTimeout(() => lvlUpText.remove(), 600);
 
-          // Cập nhật nhịp độ ra mục tiêu mới lập tức
+          // Cập nhật nhịp độ ra mục tiêu
           clearInterval(mgSpawner);
           mgSpawner = setInterval(spawnTarget, mgLevels[currentLevelIdx].speed);
       }
     };
     
+    // Hỗ trợ cực nhạy cho cả click chuột (PC) và chạm (Mobile)
+    img.addEventListener('mousedown', hitTarget);
+    img.addEventListener('touchstart', hitTarget, { passive: false });
+    
     board.appendChild(img);
     
-    // Mục tiêu tự biến mất nhanh hơn theo Cấp độ
+    // Mục tiêu tự biến mất
     setTimeout(() => { 
         if(img.parentNode) {
             img.style.transform = 'scale(0)';
@@ -2027,45 +2048,55 @@ const mgLevels = [
     };
   }
 
+  // ==========================================
+  // COPY TỪ ĐOẠN NÀY ĐỂ THAY THẾ VÀO SCRIPT.JS
+  // ==========================================
+  
+  // 3. NÚT ĐÓNG VÒNG QUAY
   if(document.getElementById('btn-close-wheel')) {
     document.getElementById('btn-close-wheel').onclick = () => {
       modal.classList.remove('show');
       if(wheelContainer) wheelContainer.classList.remove('hide-wheel'); 
     };
   }
+
+  // NÚT TẢI ẢNH VÒNG QUAY (Đã bọc kỹ trong sự kiện click của đúng nút này)
   const btnDownloadWheel = document.getElementById('btn-download-wheel');
   if (btnDownloadWheel) {
-    btnDownloadWheel.onclick = () => {
+    // Gán onclick trực tiếp, khóa chặt sự kiện không cho lan ra ngoài
+    btnDownloadWheel.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       if (typeof sfx === 'function') sfx('audio/clicksound.mp3', 0.45);
       const exportCard = document.getElementById('wheel-export-card');
 
-      // Đẩy dữ liệu từ kết quả hiện tại vào khung chụp ảnh
       document.getElementById('wec-img').src = document.getElementById('wheel-result-img').src;
       document.getElementById('wec-name').textContent = document.getElementById('wheel-result-name').textContent;
       document.getElementById('wec-text').textContent = document.getElementById('wheel-result-text').textContent;
 
-      const originalText = btnDownloadWheel.innerHTML;
-      btnDownloadWheel.innerHTML = '⏳ Đang gói quà...';
-      btnDownloadWheel.style.pointerEvents = 'none';
+      const originalText = this.innerHTML;
+      this.innerHTML = '⏳ Đang gói quà...';
+      this.style.pointerEvents = 'none';
 
-      // Hiện khung ảnh lên nhưng giấu nó khỏi màn hình
       exportCard.style.display = 'flex';
-      exportCard.style.position = 'fixed';
-      exportCard.style.top = '0';
-      exportCard.style.left = '0';
-      exportCard.style.zIndex = '-9999';
+      exportCard.style.position = 'absolute';
+      exportCard.style.top = '0px';
+      exportCard.style.left = '0px';
+      exportCard.style.zIndex = '-100';
 
       html2canvas(exportCard, {
-        scale: 2.5, // Nét căng đét để đăng story
+        scale: 2.5, 
         useCORS: true,
-        backgroundColor: null,
+        backgroundColor: '#E8F4FF', 
+        width: exportCard.offsetWidth,
+        height: exportCard.offsetHeight,
         logging: false
       }).then(canvas => {
         exportCard.style.display = 'none';
-        btnDownloadWheel.innerHTML = originalText;
-        btnDownloadWheel.style.pointerEvents = 'auto';
+        this.innerHTML = originalText;
+        this.style.pointerEvents = '';
 
-        // Tải xuống
         const link = document.createElement('a');
         link.download = `TinHieuHomNayCuaBipBip.png`;
         link.href = canvas.toDataURL('image/png');
@@ -2073,23 +2104,25 @@ const mgLevels = [
       }).catch(err => {
         console.error('Lỗi tải ảnh wheel:', err);
         exportCard.style.display = 'none';
-        btnDownloadWheel.innerHTML = originalText;
-        btnDownloadWheel.style.pointerEvents = 'auto';
-        alert('Úi, có trục trặc xíu khi lưu ảnh, bạn thử lại nha!');
+        this.innerHTML = originalText;
+        this.style.pointerEvents = 'auto';
+        alert('Có lỗi tải ảnh xíu, bạn thử lại nha!');
       });
     };
   }
 
-  // 4. Gán sự kiện cho Minigame buttons
-  document.addEventListener('click', (e) => {
-    if(e.target.id === 'btn-start-mg' || e.target.id === 'btn-restart-mg') startMinigame();
-    if(e.target.id === 'btn-quit-mg') goTo('landing', 'backward');
-  });
-})();
-/* ============================================================
-   VOLUME MINI SLIDER PATCH — thêm vào cuối script.js
-   (hoặc gọi initVolumeMini() trong hàm init())
-   ============================================================ */
+  // 4. GÁN SỰ KIỆN MINIGAME TRỰC TIẾP TỪNG NÚT (Tách biệt hoàn toàn)
+  const btnStartMg = document.getElementById('btn-start-mg');
+  const btnRestartMg = document.getElementById('btn-restart-mg');
+  const btnQuitMg = document.getElementById('btn-quit-mg');
+
+  if(btnStartMg) btnStartMg.onclick = (e) => { e.preventDefault(); e.stopPropagation(); startMinigame(); };
+  if(btnRestartMg) btnRestartMg.onclick = (e) => { e.preventDefault(); e.stopPropagation(); startMinigame(); };
+  if(btnQuitMg) btnQuitMg.onclick = (e) => { e.preventDefault(); e.stopPropagation(); goTo('landing', 'backward'); };
+
+})()
+
+
 
 (function initVolumeMini() {
   const track   = document.getElementById('vol-track');
