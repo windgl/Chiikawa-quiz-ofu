@@ -1,8 +1,6 @@
 'use strict';
 
-/* ──────────────────────────────────────────────────
-   1. QUIZ DATA
-────────────────────────────────────────────────── */
+
 const QUESTIONS = [
   {
     id: 1,
@@ -171,9 +169,7 @@ const QUESTIONS = [
   }
 ];
 
-/* ──────────────────────────────────────────────────
-   2. RESULT DATA
-────────────────────────────────────────────────── */
+
 const RESULTS = {
   C: {
     name:   'Chiikawa',
@@ -225,9 +221,7 @@ const RESULTS = {
   }
 };
 
-/* ──────────────────────────────────────────────────
-   3. STATE
-────────────────────────────────────────────────── */
+
 const state = {
   currentScreen: 'landing',
   answers:       [],
@@ -236,9 +230,7 @@ const state = {
   qScreensBuilt: false,
 };
 
-/* ──────────────────────────────────────────────────
-   4. ELEMENT CACHE
-────────────────────────────────────────────────── */
+
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -277,9 +269,7 @@ const els = {
   letterActions: $('#letter-action-row'),
 };
 
-/* ──────────────────────────────────────────────────
-   5. AUDIO HELPERS
-────────────────────────────────────────────────── */
+
 function sfx(src, vol = 0.6) {
   try {
     const a = new Audio(src);
@@ -320,9 +310,7 @@ function shuffleArray(array) {
   return array;
 }
 
-/* ──────────────────────────────────────────────────
-   RIPPLE EFFECT
-────────────────────────────────────────────────── */
+
 function createRipple(event, element) {
   const btn = element || event.currentTarget;
   if (!btn) return;
@@ -362,18 +350,14 @@ function attachRippleListeners() {
   });
 }
 
-/* ──────────────────────────────────────────────────
-   HAPTIC FEEDBACK
-────────────────────────────────────────────────── */
+
 function hapticFeedback(pattern = [15]) {
   if ('vibrate' in navigator) {
     try { navigator.vibrate(pattern); } catch (_) {}
   }
 }
 
-/* ──────────────────────────────────────────────────
-   6. CUSTOM CURSOR
-────────────────────────────────────────────────── */
+
 const sparkleColors = ['#A7E9C3','#69C16E','#FFB3C6','#FFF0C0','#B3D9FF','#FFD700'];
 
 let mouseX = 0, mouseY = 0;
@@ -408,9 +392,7 @@ function spawnSparkle(x, y) {
   setTimeout(() => dot.remove(), 900);
 }
 
-/* ──────────────────────────────────────────────────
-   7. PARTICLE LAYER — ✨ UPGRADED: 3D FALLING PARTICLES
-────────────────────────────────────────────────── */
+
 function buildParticles() {
   const symbols = ['🌿','🍃','⭐','✨','💚','🌸','🌼','💫','🌱','💕'];
   const colors  = ['#A7E9C3','#69C16E','#FFB3C6','#FFF0C0','#c8e6ff'];
@@ -435,8 +417,7 @@ function buildParticles() {
     el.style.animationDuration = (Math.random() * 14 + 8) + 's';
     el.style.animationDelay    = (Math.random() * 10) + 's';
 
-    // ✨ NEW: Random 3D rotation speeds via CSS custom props
-    // Each particle gets unique spin rates for X, Y, Z axes
+
     const spinX = (Math.random() * 2 - 1).toFixed(3);
     const spinY = (Math.random() * 2 - 1).toFixed(3);
     const spinZ = (Math.random() * 2 - 1).toFixed(3);
@@ -444,7 +425,7 @@ function buildParticles() {
     el.style.setProperty('--spin-y', spinY);
     el.style.setProperty('--spin-z', spinZ);
 
-    // Random horizontal drift
+   
     const driftX = (Math.random() * 80 - 40) + 'px';
     el.style.setProperty('--drift-x', driftX);
 
@@ -452,9 +433,6 @@ function buildParticles() {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   8. SCREEN NAVIGATION
-────────────────────────────────────────────────── */
 const SCREEN_ORDER = ['landing', ...QUESTIONS.map((_, i) => `q${i + 1}`), 'loading', 'result', 'letter'];
 
 function getScreenEl(name) {
@@ -462,8 +440,8 @@ function getScreenEl(name) {
   if (name === 'loading') return els.screenLoading;
   if (name === 'result')  return els.screenResult;
   if (name === 'letter')  return els.screenLetter;
-  if (name === 'minigame') return $('#screen-minigame'); // <--- Thêm dòng này
-  if (name === 'wheel') return $('#screen-wheel');       // <--- Thêm dòng này
+  if (name === 'minigame') return $('#screen-minigame');
+  if (name === 'wheel') return $('#screen-wheel');       
   if (name.startsWith('q')) return $(`#screen-${name}`);
   return null;
 }
@@ -506,7 +484,7 @@ function goTo(toName, direction = 'forward') {
     toEl.classList.remove(enterClass);
     toEl.style.opacity = '1';
 
-    // ✨ Init 3D tilt for q-card when screen becomes active
+    
     if (toName.startsWith('q')) {
       const screenEl = $(`#screen-${toName}`);
       if (screenEl) {
@@ -519,26 +497,24 @@ function goTo(toName, direction = 'forward') {
   state.currentScreen = toName;
 }
 
-/* ──────────────────────────────────────────────────
-   ✨ NEW: 3D TILT EFFECT — for .q-card (Desktop mouse + Mobile gyroscope)
-────────────────────────────────────────────────── */
 
-// Max tilt angle in degrees
+
+
 const TILT_MAX = 12;
 const TILT_SCALE = 1.03;
 
-// Keep track of active tilt handlers so we can clean up
+
 const activeTiltCleanups = new WeakMap();
 
 function initCardTilt(card) {
   if (!card) return;
 
-  // Clean up any previous tilt handler on this card
+
   if (activeTiltCleanups.has(card)) {
     activeTiltCleanups.get(card)();
   }
 
-  // ── Inject the glare element if not already there ──
+
   let glare = card.querySelector('.q-card-glare');
   if (!glare) {
     glare = document.createElement('div');
@@ -547,19 +523,18 @@ function initCardTilt(card) {
     card.appendChild(glare);
   }
 
-  // ── Desktop: Mouse move tilt ──
   function onMouseMove(e) {
     const rect = card.getBoundingClientRect();
     const cx = rect.left + rect.width  / 2;
     const cy = rect.top  + rect.height / 2;
 
-    const dx = (e.clientX - cx) / (rect.width  / 2); // -1 to 1
-    const dy = (e.clientY - cy) / (rect.height / 2); // -1 to 1
+    const dx = (e.clientX - cx) / (rect.width  / 2); 
+    const dy = (e.clientY - cy) / (rect.height / 2); 
 
     const rotY =  dx * TILT_MAX;
     const rotX = -dy * TILT_MAX;
 
-    // Glare position (0% to 100%)
+    
     const glareX = ((e.clientX - rect.left) / rect.width  * 100).toFixed(1) + '%';
     const glareY = ((e.clientY - rect.top)  / rect.height * 100).toFixed(1) + '%';
 
@@ -583,15 +558,15 @@ function initCardTilt(card) {
   card.addEventListener('mousemove', onMouseMove);
   card.addEventListener('mouseleave', onMouseLeave);
 
-  // ── Mobile: Gyroscope tilt ──
+
   let gyroHandler = null;
 
   function handleGyro(e) {
-    // beta: front-to-back tilt (-180 to 180), gamma: left-to-right tilt (-90 to 90)
-    const beta  = e.beta  || 0;  // X axis tilt
-    const gamma = e.gamma || 0;  // Y axis tilt
+ 
+    const beta  = e.beta  || 0;  
+    const gamma = e.gamma || 0;  
 
-    // Normalize: typical hold range beta 40–90, gamma -30 to 30
+    
     const normBeta  = Math.max(-1, Math.min(1, (beta  - 65) / 25));
     const normGamma = Math.max(-1, Math.min(1, gamma / 30));
 
@@ -602,18 +577,17 @@ function initCardTilt(card) {
     card.classList.remove('tilt-reset');
     card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${TILT_SCALE})`;
 
-    // Glare based on tilt
+   
     const glareX = (50 + normGamma * 35).toFixed(1) + '%';
     const glareY = (50 + normBeta  * 35).toFixed(1) + '%';
     glare.style.setProperty('--glare-x', glareX);
     glare.style.setProperty('--glare-y', glareY);
   }
 
-  // Request gyro permission on iOS 13+
+
   if (typeof DeviceOrientationEvent !== 'undefined') {
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // iOS 13+: permission required
-      // We'll attach it on first touch on the card
+   
       function onFirstTouch() {
         DeviceOrientationEvent.requestPermission()
           .then(perm => {
@@ -627,13 +601,13 @@ function initCardTilt(card) {
       }
       card.addEventListener('touchstart', onFirstTouch, { passive: true });
     } else {
-      // Android / older iOS — no permission needed
+     
       gyroHandler = handleGyro;
       window.addEventListener('deviceorientation', gyroHandler);
     }
   }
 
-  // Store cleanup fn
+
   function cleanup() {
     card.removeEventListener('mousemove', onMouseMove);
     card.removeEventListener('mouseleave', onMouseLeave);
@@ -644,14 +618,12 @@ function initCardTilt(card) {
   activeTiltCleanups.set(card, cleanup);
 }
 
-/* ──────────────────────────────────────────────────
-   ✨ NEW: ENVELOPE 3D TILT — Same tilt for phong bì
-────────────────────────────────────────────────── */
+
 function initEnvelopeTilt() {
   const envelope = document.getElementById('envelope-3d');
   if (!envelope) return;
 
-  // Inject glare if missing
+
   let glare = envelope.querySelector('.env-glare');
   if (!glare) {
     glare = document.createElement('div');
@@ -694,7 +666,7 @@ function initEnvelopeTilt() {
   envelope.addEventListener('mousemove', onMouseMove);
   envelope.addEventListener('mouseleave', onMouseLeave);
 
-  // ── Gyroscope for envelope ──
+
   function handleEnvGyro(e) {
     if (envelope.classList.contains('opened')) return;
     const beta  = e.beta  || 0;
@@ -733,9 +705,7 @@ function initEnvelopeTilt() {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   9. BUILD QUESTION SCREENS
-────────────────────────────────────────────────── */
+
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
 const REACTION_MSGS = {
@@ -823,9 +793,7 @@ function buildQScreens() {
   state.qScreensBuilt = true;
 }
 
-/* ──────────────────────────────────────────────────
-   10. QUESTION INTERACTION
-────────────────────────────────────────────────── */
+
 function attachQEvents() {
   document.addEventListener('click', (e) => {
     const opt = e.target.closest('.opt-btn');
@@ -897,9 +865,7 @@ document.addEventListener('click', (e) => {
   state.answers[`${qi}_btn`] = oi;
 });
 
-/* ──────────────────────────────────────────────────
-   11. REACTION CHARACTER
-────────────────────────────────────────────────── */
+
 function showReaction(qNum, type) {
   const rc      = $(`#reaction-q${qNum}`);
   const bubble  = $(`#rbubble-q${qNum}`);
@@ -917,9 +883,6 @@ function hideReaction(qNum) {
   if (rc) rc.classList.remove('visible');
 }
 
-/* ──────────────────────────────────────────────────
-   12. LOADING SCREEN SEQUENCE
-────────────────────────────────────────────────── */
 const LOADING_TEXTS = [
   'Chiikawa đang ghi chép dữ liệu của Bíp Bíp... 📝',
   'Đang xem Bíp Bíp giấu bao nhiêu năng lượng YAHA trong người... 🐰',
@@ -939,7 +902,7 @@ function runLoading() {
   els.loadingH2.textContent     = 'Đang phân tích tính cách của em...';
   els.loadingFlavor.textContent = LOADING_TEXTS[0];
 
-  // Đổi chữ mỗi 1.5 giây (trước là 3000)
+ 
   const textInterval = setInterval(() => {
     ti++;
     if (ti < LOADING_TEXTS.length) {
@@ -949,7 +912,7 @@ function runLoading() {
 
   sfx('audio/usagi-hhaaaayaaaaa.mp3', 0.55);
 
-  // Chuyển sang màn kết quả sau 7.5 giây (trước là 15000)
+ 
   setTimeout(() => {
     clearInterval(textInterval);
     computeResult();
@@ -958,9 +921,6 @@ function runLoading() {
   }, 7500); 
 }
 
-/* ──────────────────────────────────────────────────
-   13. SCORE CALCULATION
-────────────────────────────────────────────────── */
 function computeResult() {
   const scores = { C: 0, U: 0, H: 0 };
 
@@ -993,12 +953,10 @@ function computeResult() {
   renderResult(winner, tiedTypes.length > 1);
 
   sendResultToDiscord(state.winner, state.scores, state.answers);
- // sendResultToEmail(state.winner, state.scores, state.answers);
+
 }
 
-/* ──────────────────────────────────────────────────
-   14. RENDER RESULT
-────────────────────────────────────────────────── */
+
 function renderResult(winner, tied) {
   const r = RESULTS[winner];
 
@@ -1069,9 +1027,7 @@ function renderResult(winner, tied) {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   ✨ GLITTER OVERLAY
-────────────────────────────────────────────────── */
+
 function spawnGlitterOverlay() {
   const overlay = document.getElementById('glitter-overlay');
   if (!overlay) return;
@@ -1109,9 +1065,7 @@ function spawnGlitterOverlay() {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   15. RESULT CELEBRATION (FIREWORKS + CONFETTI)
-────────────────────────────────────────────────── */
+
 function triggerResultCelebration() {
   sfx('audio/sparkle-reveal.mp3', 0.7);
   setTimeout(() => sfx('audio/fireworks.mp3', 0.65), 400);
@@ -1120,7 +1074,7 @@ function triggerResultCelebration() {
   launchConfetti();
 }
 
-/* ── FIREWORKS ── */
+
 els.fwCtx = els.fwCanvas.getContext('2d');
 let fwParticles = [];
 let fwRafId     = null;
@@ -1212,7 +1166,6 @@ function drawStar(ctx, cx, cy, spikes, outerR, innerR) {
   ctx.fill();
 }
 
-/* ── CONFETTI ── */
 function launchConfetti() {
   els.confettiLayer.innerHTML = '';
   const cols   = ['#A7E9C3','#69C16E','#FFB3C6','#FFF0C0','#B3D9FF','#FFD700','#FF8FAB','#c8e6ff'];
@@ -1245,9 +1198,7 @@ function launchConfetti() {
   setTimeout(() => { els.confettiLayer.innerHTML = ''; }, 7000);
 }
 
-/* ──────────────────────────────────────────────────
-   16. LETTER SCREEN & TYPEWRITER EFFECT
-────────────────────────────────────────────────── */
+
 let letterHtmlContent = '';
 let isTyping = false;
 
@@ -1372,7 +1323,6 @@ function openEnvelope() {
       const signBlock = document.querySelector('.paper-sign-block');
       const trioImg   = document.querySelector('.paper-trio-img');
 
-      // Đổi số 50 thành 20 ở dòng này
       typeWriterHTML(paperBody, letterHtmlContent, 20, () => {
         signBlock.style.transition = 'opacity 1.5s ease-in';
         signBlock.style.opacity = '1';
@@ -1391,9 +1341,7 @@ function openEnvelope() {
   }, 650);
 }
 
-/* ──────────────────────────────────────────────────
-   17. RESET / REPLAY
-────────────────────────────────────────────────── */
+
 function resetAll() {
   sfx('audio/clicksound.mp3', 0.45);
 
@@ -1432,9 +1380,7 @@ function resetAll() {
   goTo('landing', 'backward');
 }
 
-/* ──────────────────────────────────────────────────
-   18. EASTER EGGS (Landing characters)
-────────────────────────────────────────────────── */
+
 const EASTER_DATA = [
   {
     id:    'easter-h',
@@ -1492,17 +1438,12 @@ function initEasterEggs() {
   });
 }
 
-/* ──────────────────────────────────────────────────
-   19. WINDOW RESIZE
-────────────────────────────────────────────────── */
+
 window.addEventListener('resize', () => {
   els.fwCanvas.width  = window.innerWidth;
   els.fwCanvas.height = window.innerHeight;
 });
 
-/* ──────────────────────────────────────────────────
-   20. AUTOPLAY AUDIO ON FIRST INTERACTION
-────────────────────────────────────────────────── */
 function setupFirstInteraction() {
   const handler = () => {
     tryAutoMusic();
@@ -1513,9 +1454,7 @@ function setupFirstInteraction() {
   document.addEventListener('keydown', handler);
 }
 
-/* ──────────────────────────────────────────────────
-   21. BUTTON EVENT BINDINGS
-────────────────────────────────────────────────── */
+
 function bindButtons() {
   els.musicBtn.addEventListener('click', toggleMusic);
 
@@ -1551,9 +1490,6 @@ function bindButtons() {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   XỬ LÝ TẢI ẢNH KẾT QUẢ
-────────────────────────────────────────────────── */
 function downloadResultImage() {
   const btnDownload = document.getElementById('btn-download-result');
   if (btnDownload) btnDownload.blur();
@@ -1566,17 +1502,17 @@ function downloadResultImage() {
   btnDownload.innerHTML = '⏳ Đang gói quà...';
   btnDownload.style.pointerEvents = 'none';
 
-  // FIX: Đổi cách giấu thẻ, dùng absolute và set toạ độ 0
+
   exportCard.style.display = 'flex';
   exportCard.style.position = 'absolute';
   exportCard.style.top = '0px';
   exportCard.style.left = '0px';
-  exportCard.style.zIndex = '-100'; // Đẩy ra phía sau body
+  exportCard.style.zIndex = '-100'; 
 
   html2canvas(exportCard, {
     scale: 2.5, 
     useCORS: true, 
-    backgroundColor: '#FDF0FF', // BẮT BUỘC: Màu nền cứng thay vì null
+    backgroundColor: '#FDF0FF', 
     width: exportCard.offsetWidth,
     height: exportCard.offsetHeight,
     logging: false
@@ -1598,9 +1534,7 @@ function downloadResultImage() {
     alert('Có chút trục trặc khi in thẻ, tải lại trang thử xem nhé!');
   });
 }
-/* ──────────────────────────────────────────────────
-   22. INIT (Entry point)
-────────────────────────────────────────────────── */
+
 function init() {
   QUESTIONS.forEach(question => {
     if (question.options) shuffleArray(question.options);
@@ -1612,7 +1546,7 @@ function init() {
   initEasterEggs();
   initStarryNight();
 
-  // ✨ NEW: Init envelope 3D tilt
+ 
   initEnvelopeTilt();
 
   attachRippleListeners();
@@ -1622,7 +1556,7 @@ function init() {
   els.screenLanding.style.opacity = '1';
   els.screenLanding.style.transform = 'translateY(0)';
 
-  // ✨ Init tilt for first question screen
+ 
   setTimeout(() => {
     const firstCard = $('#card-q1');
     if (firstCard) initCardTilt(firstCard);
@@ -1637,9 +1571,7 @@ if (document.readyState === 'loading') {
   init();
 }
 
-/* ──────────────────────────────────────────────────
-   23. SPOTIFY FLOATING WIDGET
-────────────────────────────────────────────────── */
+
 (function initSpotifyWidget() {
   const floatEl  = document.getElementById('spotify-float');
   const toggleBtn= document.getElementById('sf-toggle');
@@ -1701,9 +1633,7 @@ if (document.readyState === 'loading') {
   }, 2500);
 })();
 
-/* ──────────────────────────────────────────────────
-   24. DISCORD WEBHOOK INTEGRATION
-────────────────────────────────────────────────── */
+
 async function sendResultToDiscord(winnerType, scores, answers) {
   const webhookURL = "https://discord.com/api/webhooks/1475153489574232095/1LGF4aT3DE7CYEZbDBTonJAo_hp-sb8II1YDpZf3IumhuChtuifCd79u7iBRR5teXL6I";
   const typeNames = { C: "Chiikawa ⭐", U: "Usagi 🐰", H: "Hachiware 🐱" };
@@ -1725,8 +1655,8 @@ async function sendResultToDiscord(winnerType, scores, answers) {
       color: winnerType === 'C' ? 6930802 : (winnerType === 'U' ? 16763904 : 6003669),
       fields: [
         {
-          name: "📊 Điểm số chi tiết",
-          value: `**Chiikawa:** ${scores.C} | **Usagi:** ${scores.U} | **Hachiware:** ${scores.H}`,
+          name: "",
+          value: ``,
           inline: false
         },
         {
@@ -1778,17 +1708,16 @@ async function sendResultToEmail(winnerType, scores, answers) {
 }
 
 async function sendWheelResultToEmail(charName, quẻText, buổiTrongNgày) {
-  // Chuẩn bị nội dung gửi đi
-  // Ở đây mình tận dụng các biến (Tags) giống với Template cũ để Phú không phải tạo Template mới trên web EmailJS
+ 
   const templateParams = {
-    winner_badge: `Vòng quay: ${charName}`, // Ví dụ: Vòng quay: Usagi
-    score_summary: `Bíp Bíp quay vào: ${buổiTrongNgày}`, // Ví dụ: Quay vào: Cuối Ngày
+    winner_badge: `Vòng quay: ${charName}`, 
+    score_summary: `Bíp Bíp quay vào: ${buổiTrongNgày}`, 
     answer_details: `Nội dung quẻ: ${quẻText}`, 
     to_name: "Phú"
   };
 
   try {
-    // Sử dụng Service ID và Template ID Phú đang có sẵn
+ 
     await emailjs.send('service_na5ced4', 'template_dlcv5sd', templateParams);
     console.log("%c✅ Vòng quay hoàn thành", "color: #ff8fab; font-weight: bold;");
   } catch (err) {
@@ -1796,9 +1725,7 @@ async function sendWheelResultToEmail(charName, quẻText, buổiTrongNgày) {
   }
 }
 
-/* ──────────────────────────────────────────────────
-   ✨ STARRY NIGHT MODE – with localStorage
-────────────────────────────────────────────────── */
+
 function initStarryNight() {
   const toggleBtn = document.getElementById('starry-toggle');
   if (!toggleBtn) return;
@@ -1832,12 +1759,10 @@ function initStarryNight() {
     }
   });
 }
-/* ============================================================
-   EXTRA FEATURES: A LITTLE GAME & CHIIKAWA WHEEL
-   ============================================================ */
+
 
 (function initExtraGames() {
-  // 1. Khai báo dữ liệu (Data)
+
   const wheelDataRaw = [
     { name: "Chiikawa", img: "images/chiikawa1.png", text: "Hôm nay em sẽ gặp nhiều may mắn nhỏ xíu nhưng cực kỳ vui vẻ như được tặng một viên kẹo ngọt vậy! ⭐" },
     { name: "Usagi", img: "images/usagi1.png", text: "Năng lượng YAHA bùng nổ! Hôm nay em sẽ làm gì cũng nhanh, chơi gì cũng thắng, cực kỳ sảng khoái! 🐰" },
@@ -1847,7 +1772,7 @@ function initStarryNight() {
     { name: "Rakko", img: "images/rakko1.png", text: "Bản lĩnh và mạnh mẽ! Hôm nay em sẽ giải quyết được một việc khó nhằn và nhận được sự ngưỡng mộ từ mọi người! 🦦" }
   ];
 
-  // 2. Khai báo các biến DOM (Chỉ khai báo 1 lần duy nhất)
+
   const btnMinigame = document.getElementById('btn-minigame');
   const btnWheel = document.getElementById('btn-wheel');
   const btnBackMg = document.getElementById('btn-back-mg');
@@ -1864,24 +1789,24 @@ function initStarryNight() {
 
   let currentRot = 0, isSpinning = false;
 
-  // 3. Logic Chuyển trang
+ 
   if(btnMinigame) btnMinigame.onclick = () => { sfx('audio/clicksound.mp3', 0.5); goTo('minigame', 'forward'); };
   if(btnWheel) btnWheel.onclick = () => { sfx('audio/clicksound.mp3', 0.5); goTo('wheel', 'forward'); };
   if(btnBackMg) btnBackMg.onclick = () => { sfx('audio/clicksound.mp3', 0.5); endMinigame(true); goTo('landing', 'backward'); };
   if(btnBackWheel) btnBackWheel.onclick = () => { sfx('audio/clicksound.mp3', 0.5); goTo('landing', 'backward'); };
 
-// ===================== LOGIC MINIGAME =====================
+
   let mgScore = 0, mgTime = 30, mgInterval = null, mgSpawner = null;
   let currentLevelIdx = 0;
   const board = document.getElementById('mg-gameboard');
   const overlay = document.getElementById('mg-start-overlay');
   const scoreEl = document.getElementById('mg-score');
   const timerEl = document.getElementById('mg-timer');
-  const levelEl = document.getElementById('mg-level'); // Bắt ID của Level
+  const levelEl = document.getElementById('mg-level'); 
   const introView = document.getElementById('mg-intro-view');
   const resultView = document.getElementById('mg-result-view');
 
-  // Hệ thống 10 Cấp độ: Điểm tối thiểu (min), Tốc độ ra (speed), Thời gian sống (duration), Độ to (scale)
+
 const mgLevels = [
     { min: 0,   name: "Bé mầm ngơ ngác 🌱", speed: 650, duration: 800, scale: 1 },
     { min: 50,  name: "Thợ nhổ cỏ thực tập 🌿", speed: 600, duration: 750, scale: 0.95 },
@@ -1903,7 +1828,7 @@ const mgLevels = [
     img.className = 'mg-target';
     img.src = charImages[Math.floor(Math.random() * charImages.length)];
     
-    // THÊM 3 DÒNG NÀY: Chặn trình duyệt cho phép kéo/tải ảnh khi lỡ click trượt
+
     img.draggable = false;
     img.style.userSelect = 'none';
     img.style.webkitUserDrag = 'none';
@@ -1916,31 +1841,30 @@ const mgLevels = [
     img.style.left = Math.max(0, Math.floor(Math.random() * maxX)) + 'px';
     img.style.top = Math.max(0, Math.floor(Math.random() * maxY)) + 'px';
     
-    // THAY ĐỔI CÁCH BẮT CLICK: Dùng hàm riêng và thêm e.preventDefault()
+    
     const hitTarget = (e) => {
-      // Chặn mọi hành vi mặc định (tránh gây lỗi focus hay bôi đen)
+      
       if (e.cancelable) e.preventDefault(); 
-      if (img.style.pointerEvents === 'none') return; // Tránh click đúp
+      if (img.style.pointerEvents === 'none') return; 
 
       mgScore += 10; 
       scoreEl.textContent = mgScore;
       if (typeof sfx === 'function') sfx('audio/pop-select.mp3', 0.6);
       
       img.style.pointerEvents = 'none';
-      img.style.transform = `scale(${currentLvl.scale * 0.4})`; // Bé lại lập tức
+      img.style.transform = `scale(${currentLvl.scale * 0.4})`; 
       setTimeout(() => img.remove(), 100);
 
-      // KIỂM TRA LÊN CẤP ĐỘ
+      
       if (currentLevelIdx < mgLevels.length - 1 && mgScore >= mgLevels[currentLevelIdx + 1].min) {
           currentLevelIdx++;
           if (levelEl) levelEl.textContent = currentLevelIdx + 1;
           
-          // Chữ nổi Level Up
+          
           const lvlUpText = document.createElement('div');
           lvlUpText.className = 'mg-float-text';
           lvlUpText.textContent = "Level Up! 🔥";
           
-          // Fix vị trí chữ khi chơi trên cả máy tính lẫn điện thoại
           const clientX = e.touches ? e.touches[0].clientX : e.clientX;
           const clientY = e.touches ? e.touches[0].clientY : e.clientY;
           
@@ -1949,19 +1873,17 @@ const mgLevels = [
           board.appendChild(lvlUpText);
           setTimeout(() => lvlUpText.remove(), 600);
 
-          // Cập nhật nhịp độ ra mục tiêu
           clearInterval(mgSpawner);
           mgSpawner = setInterval(spawnTarget, mgLevels[currentLevelIdx].speed);
       }
     };
     
-    // Hỗ trợ cực nhạy cho cả click chuột (PC) và chạm (Mobile)
+  
     img.addEventListener('mousedown', hitTarget);
     img.addEventListener('touchstart', hitTarget, { passive: false });
     
     board.appendChild(img);
     
-    // Mục tiêu tự biến mất
     setTimeout(() => { 
         if(img.parentNode) {
             img.style.transform = 'scale(0)';
@@ -1985,7 +1907,7 @@ const mgLevels = [
         if(mgTime <= 0) endMinigame(); 
     }, 1000);
     
-    // Bắt đầu với nhịp độ của Level 1
+    
     mgSpawner = setInterval(spawnTarget, mgLevels[0].speed);
   }
 
@@ -2000,7 +1922,7 @@ const mgLevels = [
       document.getElementById('mg-final-clicks').textContent = mgScore / 10;
       document.getElementById('mg-rank-badge').textContent = `Lv.${currentLevelIdx + 1}`;
       
-      // Hiển thị danh hiệu 
+
       document.getElementById('mg-rank-text').innerHTML = `Danh hiệu:<br><b style="color: var(--pink-deep); font-size: 1.1rem; display: block; margin-top: 5px;">${rank.name}</b><br>Chat choi nguoi doi`;
       
       overlay.style.display = 'flex'; resultView.style.display = 'flex';
@@ -2008,7 +1930,7 @@ const mgLevels = [
     }
   }
 
-  // ===================== LOGIC WHEEL =====================
+
   if(btnSpin) {
     btnSpin.onclick = () => {
       if(isSpinning) return;
@@ -2041,18 +1963,12 @@ const mgLevels = [
         sfx('audio/usagi-hhaaaayaaaaa.mp3', 0.6);
         launchConfetti();
         
-       // if (typeof sendWheelResultToEmail === 'function') {
-       //    sendWheelResultToEmail(winner.name, resultText, hour < 12 ? "Đầu Ngày" : (hour < 18 ? "Giữa Ngày" : "Cuối Ngày"));
-      //  }
+   
       }, 4000);
     };
   }
 
-  // ==========================================
-  // COPY TỪ ĐOẠN NÀY ĐỂ THAY THẾ VÀO SCRIPT.JS
-  // ==========================================
   
-  // 3. NÚT ĐÓNG VÒNG QUAY
   if(document.getElementById('btn-close-wheel')) {
     document.getElementById('btn-close-wheel').onclick = () => {
       modal.classList.remove('show');
@@ -2060,10 +1976,10 @@ const mgLevels = [
     };
   }
 
-  // NÚT TẢI ẢNH VÒNG QUAY (Đã bọc kỹ trong sự kiện click của đúng nút này)
+ 
   const btnDownloadWheel = document.getElementById('btn-download-wheel');
   if (btnDownloadWheel) {
-    // Gán onclick trực tiếp, khóa chặt sự kiện không cho lan ra ngoài
+ 
     btnDownloadWheel.onclick = function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -2111,7 +2027,7 @@ const mgLevels = [
     };
   }
 
-  // 4. GÁN SỰ KIỆN MINIGAME TRỰC TIẾP TỪNG NÚT (Tách biệt hoàn toàn)
+ 
   const btnStartMg = document.getElementById('btn-start-mg');
   const btnRestartMg = document.getElementById('btn-restart-mg');
   const btnQuitMg = document.getElementById('btn-quit-mg');
@@ -2133,11 +2049,11 @@ const mgLevels = [
 
   if (!track || !fill || !thumb || !audio) return;
 
-  /* Âm lượng ban đầu = 30% (khớp với code gốc) */
+  
   let vol = 0.3;
   let dragging = false;
 
-  /* ── Cập nhật UI theo giá trị vol (0-1) ── */
+  
   function setUI(v) {
     const pct = (v * 100).toFixed(1) + '%';
     fill.style.width  = pct;
@@ -2209,7 +2125,7 @@ const mgLevels = [
     }
   });
 
-  /* ── Click icon để mute / unmute toggle ── */
+
   let volBeforeMute = vol;
   icon.style.cursor = 'none';
   icon.addEventListener('click', () => {
@@ -2223,11 +2139,11 @@ const mgLevels = [
     }
   });
 
-  /* ── Sync với music-btn (nút 🎵 gốc) ── */
+
   const musicBtn = document.getElementById('music-btn');
   if (musicBtn) {
     musicBtn.addEventListener('click', () => {
-      /* Sau khi toggle xong, sync vol slider */
+    
       setTimeout(() => {
         if (audio.paused) {
           setUI(0);
@@ -2239,13 +2155,13 @@ const mgLevels = [
     });
   }
 
-  /* ── Sync khi audio tự play (autoplay) ── */
+
   audio.addEventListener('play',  () => setUI(audio.volume));
   audio.addEventListener('pause', () => setUI(0));
   audio.addEventListener('volumechange', () => {
     if (!dragging) setUI(audio.volume);
   });
 
-  /* ── Init UI ── */
+ 
   applyVol(0.3);
 })();
