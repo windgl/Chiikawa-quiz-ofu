@@ -385,7 +385,7 @@ else if (hour >= 17 && hour <= 18) {
             if (typeof launchConfetti === 'function') launchConfetti();
         } catch (err) {
             console.error("Lỗi gửi thư phản hồi:", err);
-            alert("Úi, bồ câu bị lạc đường rồi. Bíp Bíp chụp màn hình gửi trực tiếp cho Phú nha 🥺");
+            alert("Úi, bồ câu bị lạc đường rồi. Bíp Bíp gửi trực tiếp cho mình nha 🥺");
             btnSend.innerText = "Thử gửi lại 💌";
             btnSend.disabled = false;
         }
