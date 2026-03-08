@@ -156,63 +156,65 @@
 
         // 1. Khuya muộn (00:00 - 01:59)
         if (hour === 0 || hour === 1) {
-            toastIcon = '🦉';
-            toastText = 'Muộn lắm rồi kìa, đi ngủ nha!!!!';
-            taglineText = 'khuya rồi · mắt thâm rồi kìa · đi ngủ đi';
-        }
+    toastIcon = '🦉';
+    toastText = 'Muộn lắm rồi kìa, đi ngủ nha!!!!';
+    taglineText = 'late af! · go bed! · zzz rn!';
+}
         // 2. Rạng sáng (02:00 - 04:59)
-        else if (hour >= 2 && hour <= 4) {
-            toastIcon = '😵';
-            toastText = 'Giờ này mà còn thức thì chịu luôn bạn lun á!!!!!!!';
-            taglineText = 'giờ thiêng · đi ngủ lẹ · tắt đt đi';
-        }
+       else if (hour >= 2 && hour <= 4) {
+    toastIcon = '😵';
+    toastText = 'Giờ này mà còn thức thì chịu luôn bạn lun á!!!!!!!';
+    taglineText = '2am?! · still up?! · sleep now?!';
+}
         // 3. Sáng sớm (05:00 - 06:59)
-        else if (hour >= 5 && hour <= 6) {
-            toastIcon = '🌅';
-            toastText = 'Chào buổi sáng! Dậy sớm thế, ngày mới năng lượng nha~';
-            taglineText = 'good morning · dậy sớm thí · yahaaa';
-        }
-        // 4. Sáng (07:00 - 08:59)
-        else if (hour >= 7 && hour <= 8) {
-            toastIcon = '🍳';
-            toastText = 'Bạn sáng chưa? Nhớ nạp năng lượng đầy đủ nha';
-            taglineText = 'nhớ ăn sáng · đừng nhịn đói · have a good day';
-        }
+else if (hour >= 5 && hour <= 6) {
+    toastIcon = '🌅';
+    toastText = 'Chào buổi sáng! Dậy sớm thế, ngày mới năng lượng nha~';
+    taglineText = 'gm early · rise n shine · hru bby';
+}
+
+
+       // 4. Sáng (07:00 - 08:59)
+else if (hour >= 7 && hour <= 8) {
+    toastIcon = '🍳';
+    toastText = 'Bạn sáng chưa? Nhớ nạp năng lượng đầy đủ nha';
+    taglineText = 'brekkie yet? · eat up? · hagd cutie?';
+}
         // 5. Nửa buổi sáng (09:00 - 10:59)
         else if (hour >= 9 && hour <= 10) {
             toastIcon = '🌿';
             toastText = 'Bạn đậy chưa đó? trời gần trưa rui';
-            taglineText = '520 · 530 · 5260';
+            taglineText = 'ily · imy · xoxo';
         }
         // 6. Trưa (11:00 - 12:59)
-        else if (hour >= 11 && hour <= 12) {
-            toastIcon = '🍱';
-            toastText = 'Trưa rồi, nhớ ăn uống đầy đủ rồi chợp mắt một xíu nha';
-            taglineText = 'trưa rồi · ăn cơm thôi · nghỉ ngơi xíu';
-        }
+else if (hour >= 11 && hour <= 12) {
+    toastIcon = '🍱';
+    toastText = 'Trưa rồi, nhớ ăn uống đầy đủ rồi chợp mắt một xíu nha';
+    taglineText = 'lunch? · ate yet? · nap soon?';
+}
         // 7. Đầu giờ chiều (13:00 - 14:59)
         else if (hour >= 13 && hour <= 14) {
             toastIcon = '☕';
             toastText = 'Đầu giờ chiều dễ buồn ngủ lắm á';
-            taglineText = 'buồn ngủ chưa · sắp gục ngã chưa · đánh một giấc là ngon lun';
+            taglineText = 'sleepy? · dying? · need a nap';
         }
-        // 8. Giữa chiều (15:00 - 16:59)
-        else if (hour >= 15 && hour <= 16) {
-            toastIcon = '🐰';
-            toastText = 'Sắp hết ngày rồi, cố lên nào, sắp được nghỉ ngơi rùi đó';
-            taglineText = 'chìu rui · cố lên · sắp được nghỉ';
-        }
+       // 8. Giữa chiều (15:00 - 16:59)
+else if (hour >= 15 && hour <= 16) {
+    toastIcon = '🐰';
+    toastText = 'Sắp hết ngày rồi, cố lên nào, sắp được nghỉ ngơi rùi đó';
+    taglineText = 'arvo grind · push thru · almost free';
+}
         // 9. Chiều muộn / Tan tầm (17:00 - 18:59)
-        else if (hour >= 17 && hour <= 18) {
-            toastIcon = '🌇';
-            toastText = 'Chiều rùi, đi tắm rửa nghỉ ngơi thôi, hôm nay vất vả rồi';
-            taglineText = 'hoàng hôn đẹp khum · nghỉ ngơi thui · vất vả rui';
-        }
+else if (hour >= 17 && hour <= 18) {
+    toastIcon = '🌇';
+    toastText = 'Chiều rùi, đi tắm rửa nghỉ ngơi thôi, hôm nay vất vả rồi';
+    taglineText = 'sunset! · unwind! · u slayed!';
+}
         // 10. Tối (19:00 - 20:59)
         else if (hour >= 19 && hour <= 20) {
             toastIcon = '🎧';
             toastText = 'Buổi tối an lành nhé!';
-            taglineText = 'good evening · ăn tối chưa · 143';
+            taglineText = 'ate yet? · hru? · wud?';
         }
         // 11. Tối muộn (21:00 - 22:29)
         else if (hour === 21 || (hour === 22 && minute < 30)) {
@@ -221,11 +223,11 @@
             taglineText = '3207778 · 6314 · 93110';
         }
         // 12. Khuya (22:30 - 23:59)
-        else {
-            toastIcon = '💤';
-            toastText = 'Khuya rồi nhớ ngủ sớm nha!';
-            taglineText = 'muộn rồi · nhớ ngủ sớm nha · luv u';
-        }
+       else {
+    toastIcon = '💤';
+    toastText = 'Khuya rồi nhớ ngủ sớm nha!';
+    taglineText = 'late af · gud nai · luv u';
+}
 
         // Đổi nội dung Tagline dưới tiêu đề
         const tagline = document.querySelector('.landing-tagline');
